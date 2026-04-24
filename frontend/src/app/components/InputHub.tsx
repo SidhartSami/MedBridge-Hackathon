@@ -1,4 +1,4 @@
-import { Mic, Search, MessageCircle, Activity, Pill, Stethoscope, ArrowRight } from 'lucide-react';
+import { Mic, Search, MessageCircle, Activity, Pill, Stethoscope, ArrowRight, ChevronLeft, Plus } from 'lucide-react';
 import { useState } from 'react';
 
 interface InputHubProps {
@@ -7,22 +7,24 @@ interface InputHubProps {
   userInput: string;
 }
 
+type Screen = 'splash' | 'input';
+
 export function InputHub({ onInputSubmit, onModuleSelect, userInput }: InputHubProps) {
   const [input, setInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [screen, setScreen] = useState<Screen>('splash');
   const hasSubmittedInput = userInput.length > 0;
 
   const handleSubmit = () => {
     if (input.trim()) {
       onInputSubmit(input);
+      setInput('');
     }
   };
 
   const handleRecordingComplete = () => {
     setIsRecording(false);
-    // Simulate voice input
-    const voiceInput = "pet mein dard hai aur bukhar hai";
-    setInput(voiceInput);
+    const voiceInput = 'pet mein dard hai aur bukhar hai';
     onInputSubmit(voiceInput);
   };
 
@@ -32,84 +34,170 @@ export function InputHub({ onInputSubmit, onModuleSelect, userInput }: InputHubP
       title: 'Symptom Checker',
       description: 'AI diagnosis from your symptoms',
       icon: MessageCircle,
-      color: '#136382'
+      accent: 'bg-[#EEF4FF] text-[#3B6FD4]',
+      iconBg: 'bg-[#3B6FD4]',
     },
     {
       id: 'decision' as const,
       title: 'Go or Stay Home',
-      description: 'Should you visit hospital?',
+      description: 'Should you visit a hospital?',
       icon: Activity,
-      color: '#26A68A'
+      accent: 'bg-[#EDFAF5] text-[#1B8C67]',
+      iconBg: 'bg-[#1B8C67]',
     },
     {
       id: 'medication' as const,
-      title: 'Medication Interaction',
-      description: 'Check drug safety',
+      title: 'Medication Check',
+      description: 'Check drug safety & interactions',
       icon: Pill,
-      color: '#136382'
+      accent: 'bg-[#FFF7ED] text-[#C2621A]',
+      iconBg: 'bg-[#C2621A]',
     },
     {
       id: 'specialist' as const,
-      title: 'Specialist Recommender',
-      description: 'Find the right doctor',
+      title: 'Find a Specialist',
+      description: 'Get matched to the right doctor',
       icon: Stethoscope,
-      color: '#26A68A'
-    }
+      accent: 'bg-[#F5F0FF] text-[#7048C8]',
+      iconBg: 'bg-[#7048C8]',
+    },
   ];
 
+  const features = [
+    { label: 'Symptom checker', icon: MessageCircle },
+    { label: 'Hospital triage', icon: Activity },
+    { label: 'Drug interactions', icon: Pill },
+    { label: 'Specialist finder', icon: Stethoscope },
+  ];
+
+  if (screen === 'splash') {
+    return (
+      <div className="relative flex min-h-[520px] w-full flex-col items-center justify-center overflow-hidden px-6 py-16 text-center">
+        {/* Decorative background blobs */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-16 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full opacity-[0.07]"
+          style={{ background: '#136382', filter: 'blur(64px)' }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute bottom-0 right-8 h-48 w-48 rounded-full opacity-[0.06]"
+          style={{ background: '#26A68A', filter: 'blur(48px)' }}
+        />
+
+        {/* Logo mark */}
+        <div className="mb-6 flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-[#136382] shadow-lg">
+          <Plus className="h-9 w-9 text-white" strokeWidth={2.5} />
+        </div>
+
+        {/* Brand */}
+        <h1 className="mb-2 text-4xl font-semibold tracking-tight text-[#0f2d38]">
+          Med<span className="text-[#136382]">Bridge</span>
+        </h1>
+        <p className="mb-8 max-w-xs text-sm leading-relaxed text-gray-500">
+          Your AI healthcare assistant. Describe symptoms in English or Urdu — we'll help you navigate what comes next.
+        </p>
+
+        {/* Feature pills */}
+        <div className="mb-10 flex flex-wrap justify-center gap-2">
+          {features.map(({ label, icon: Icon }) => (
+            <div
+              key={label}
+              className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3.5 py-1.5 text-xs text-gray-500 shadow-sm"
+            >
+              <Icon className="h-3.5 w-3.5 text-[#136382]" />
+              {label}
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <button
+          onClick={() => setScreen('input')}
+          className="group flex items-center gap-2 rounded-full bg-[#136382] px-7 py-3.5 text-sm font-medium text-white shadow-md transition-all hover:bg-[#0f4f65] hover:shadow-lg active:scale-95"
+        >
+          Get started
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </button>
+
+        <p className="mt-5 text-[11px] text-gray-400">
+          Not a substitute for professional medical advice
+        </p>
+      </div>
+    );
+  }
+
+  // Input screen
   return (
-    <div className="flex flex-col">
+    <div className="mx-auto flex w-full max-w-5xl flex-col px-4 pb-8 pt-5 sm:px-6">
+      {/* Back button */}
+      {!hasSubmittedInput && (
+        <button
+          onClick={() => setScreen('splash')}
+          className="mb-4 flex w-fit items-center gap-1.5 text-sm text-gray-400 transition hover:text-gray-600"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back
+        </button>
+      )}
+
       {/* Header */}
-      <div className="px-6 py-6 text-center" style={{ backgroundColor: '#136382' }}>
-        <h1 className="text-white text-3xl mb-2">MedBridge</h1>
-        <p className="text-white/90">Your AI Healthcare Assistant</p>
+      <div className="mb-5 flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#136382]">
+          <Plus className="h-5 w-5 text-white" strokeWidth={2.5} />
+        </div>
+        <div>
+          <h1 className="text-lg font-semibold leading-tight text-[#0f2d38]">MedBridge</h1>
+          <p className="text-xs text-gray-400">AI Healthcare Assistant</p>
+        </div>
       </div>
 
-      {/* Omni-Input Area */}
-      <div className="px-6 py-8 bg-white border-b border-gray-100">
-        <h2 className="text-xl mb-4 text-center" style={{ color: '#136382' }}>
-          {hasSubmittedInput ? 'Your Input' : 'How can we help you?'}
+      {/* Input card */}
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="mb-4 text-base font-medium text-[#136382]">
+          {hasSubmittedInput ? 'Your concern' : 'How can we help you?'}
         </h2>
 
-        {/* Submitted Input Display */}
         {hasSubmittedInput ? (
-          <div className="p-5 rounded-[24px] mb-4" style={{ backgroundColor: '#E2F9D3' }}>
-            <p className="text-base" style={{ color: '#136382' }}>
-              "{userInput}"
-            </p>
+          <div className="rounded-xl bg-gray-50 p-4">
+            <p className="text-sm text-gray-700">"{userInput}"</p>
             <button
               onClick={() => onInputSubmit('')}
-              className="text-sm mt-2 underline"
-              style={{ color: '#136382' }}
+              className="mt-2 text-xs text-[#136382] underline underline-offset-2 hover:text-[#0f4f65]"
             >
-              Clear & start new query
+              Clear &amp; start over
             </button>
           </div>
         ) : (
           <>
-            {/* Text Input with Submit */}
-            <div className="relative mb-4">
-              <div className="flex items-center gap-3 bg-gray-50 rounded-[28px] px-5 py-4 border-2 border-transparent focus-within:border-[#26A68A] transition-all">
-                <Search className="w-6 h-6 text-gray-400" />
+            <div className="relative mb-3">
+              <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 transition-all focus-within:border-[#136382] focus-within:bg-white">
+                <Search className="h-4 w-4 flex-shrink-0 text-gray-400" />
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-                  placeholder="Type symptoms: 'pet mein dard hai' or 'stomach pain'"
-                  className="flex-1 bg-transparent outline-none text-base"
+                  placeholder="Type: 'pet mein dard hai' or 'stomach pain…'"
+                  className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
                 />
                 {input.trim() && (
-                  <button onClick={handleSubmit}>
-                    <ArrowRight className="w-6 h-6" style={{ color: '#26A68A' }} />
+                  <button
+                    onClick={handleSubmit}
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-[#136382] text-white transition hover:bg-[#0f4f65] active:scale-95"
+                  >
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
             </div>
 
-            <div className="text-center text-sm text-gray-500 mb-4">OR</div>
+            <div className="relative mb-3 flex items-center gap-3">
+              <div className="h-px flex-1 bg-gray-100" />
+              <span className="text-xs text-gray-400">or</span>
+              <div className="h-px flex-1 bg-gray-100" />
+            </div>
 
-            {/* Microphone Button */}
             <button
               onClick={() => {
                 if (isRecording) {
@@ -118,64 +206,61 @@ export function InputHub({ onInputSubmit, onModuleSelect, userInput }: InputHubP
                   setIsRecording(true);
                 }
               }}
-              className="w-full flex items-center justify-center gap-3 px-6 py-5 rounded-[28px] transition-all shadow-md"
-              style={{ backgroundColor: isRecording ? '#26A68A' : '#136382' }}
+              className={`flex w-full items-center justify-center gap-2.5 rounded-xl px-5 py-4 text-sm font-medium transition active:scale-95 ${
+                isRecording
+                  ? 'bg-[#26A68A] text-white'
+                  : 'border border-gray-200 bg-gray-50 text-gray-600 hover:border-[#136382] hover:bg-white hover:text-[#136382]'
+              }`}
             >
-              <Mic className="w-7 h-7 text-white" />
-              <span className="text-white text-lg">
-                {isRecording ? 'Recording... (Tap to stop)' : 'Voice Input - Speak Now'}
-              </span>
+              <Mic className="h-4 w-4" />
+              {isRecording ? 'Recording… tap to stop' : 'Voice input — speak now'}
             </button>
 
             {isRecording && (
-              <div className="mt-4 p-4 rounded-[24px] flex items-center gap-3" style={{ backgroundColor: '#E2F9D3' }}>
-                <div className="flex gap-1">
-                  {[1, 2, 3].map((i) => (
+              <div className="mt-3 flex items-center gap-3 rounded-xl bg-[#EDFAF5] px-4 py-3">
+                <div className="flex items-end gap-0.5">
+                  {[1, 2, 3, 4].map((i) => (
                     <div
                       key={i}
-                      className="w-1 h-8 rounded-full animate-pulse"
+                      className="w-1 rounded-full bg-[#26A68A]"
                       style={{
-                        backgroundColor: '#26A68A',
-                        animationDelay: `${i * 0.15}s`
+                        height: `${8 + i * 4}px`,
+                        animation: 'pulse 0.8s ease-in-out infinite alternate',
+                        animationDelay: `${i * 0.12}s`,
                       }}
                     />
                   ))}
                 </div>
-                <span className="text-sm" style={{ color: '#136382' }}>
-                  Listening with Whisper AI...
-                </span>
+                <span className="text-xs text-[#1B8C67]">Listening with Whisper AI…</span>
               </div>
             )}
           </>
         )}
       </div>
 
-      {/* Module Selection - Only show after input submitted */}
+      {/* Module grid */}
       {hasSubmittedInput && (
-        <div className="px-6 py-6">
-          <h3 className="mb-4 text-center" style={{ color: '#136382' }}>Choose a Module</h3>
-          <div className="grid grid-cols-1 gap-4">
+        <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
+          <h3 className="mb-4 text-sm font-medium text-gray-500">Choose a tool</h3>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {modules.map((module) => {
               const Icon = module.icon;
               return (
                 <button
                   key={module.id}
                   onClick={() => onModuleSelect(module.id)}
-                  className="flex items-center gap-4 p-5 rounded-[28px] bg-white border-2 border-gray-100 hover:border-[#26A68A] transition-all text-left shadow-sm hover:shadow-md"
+                  className="group flex items-center gap-3.5 rounded-xl border border-gray-100 bg-white p-4 text-left transition-all hover:-translate-y-0.5 hover:border-gray-200 hover:shadow-sm active:scale-[0.99]"
                 >
                   <div
-                    className="w-14 h-14 rounded-[20px] flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: module.color }}
+                    className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl ${module.iconBg}`}
                   >
-                    <Icon className="w-7 h-7 text-white" />
+                    <Icon className="h-5 w-5 text-white" />
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-lg mb-1" style={{ color: '#136382' }}>
-                      {module.title}
-                    </h4>
-                    <p className="text-sm text-gray-600">{module.description}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-800">{module.title}</p>
+                    <p className="mt-0.5 truncate text-xs text-gray-400">{module.description}</p>
                   </div>
-                  <ArrowRight className="w-6 h-6 text-gray-400" />
+                  <ArrowRight className="h-4 w-4 flex-shrink-0 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-gray-400" />
                 </button>
               );
             })}
@@ -183,23 +268,16 @@ export function InputHub({ onInputSubmit, onModuleSelect, userInput }: InputHubP
         </div>
       )}
 
-      {/* Instruction when no input */}
+      {/* Empty state */}
       {!hasSubmittedInput && (
-        <div className="px-6 py-8">
-          <div className="text-center">
-            <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ backgroundColor: '#D1EBEF' }}
-            >
-              <MessageCircle className="w-8 h-8" style={{ color: '#136382' }} />
-            </div>
-            <h3 className="mb-2" style={{ color: '#136382' }}>
-              Enter your symptoms
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Type or speak your health concerns, then choose which tool you'd like to use
-            </p>
+        <div className="flex flex-col items-center px-2 py-10 text-center">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-50">
+            <MessageCircle className="h-6 w-6 text-[#136382]" />
           </div>
+          <p className="text-sm font-medium text-gray-700">Describe your symptoms</p>
+          <p className="mt-1 max-w-xs text-xs leading-relaxed text-gray-400">
+            Type or speak your health concern, then pick which tool you'd like to use
+          </p>
         </div>
       )}
     </div>
